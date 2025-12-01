@@ -83,8 +83,12 @@ target_link_libraries(direct_visual_lidar_calibration
 ament_auto_add_executable(preprocess
   src/preprocess_ros2.cpp
 )
+target_include_directories(preprocess PRIVATE
+  ${cv_bridge_INCLUDE_DIRS}
+)
 target_link_libraries(preprocess
   direct_visual_lidar_calibration
+  ${cv_bridge_LIBRARIES}
 )
 
 # preprocess_map
