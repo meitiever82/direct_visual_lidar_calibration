@@ -9,16 +9,10 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-if($ENV{ROS_VERSION} EQUAL 1)
-  # ROS1
-  find_package(catkin REQUIRED COMPONENTS rosbag sensor_msgs cv_bridge)
-  catkin_package()
-else()
-  # ROS2
-  find_package(ament_cmake_auto REQUIRED)
-  find_package(ament_cmake_python REQUIRED)
-  ament_auto_find_build_dependencies()
-endif()
+# ROS2
+find_package(ament_cmake_auto REQUIRED)
+find_package(ament_cmake_python REQUIRED)
+ament_auto_find_build_dependencies()
 
 find_package(PCL REQUIRED)
 find_package(Ceres REQUIRED)

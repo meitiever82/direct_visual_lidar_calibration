@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>3rdparty</name>
+  <version>1.0.0</version>
+  <description>A catkin wrapper of the 3rdparty Library.</description>
+  <maintainer email="guoruonan@ztpilot.com">Steve Guo</maintainer>
+  <author>Steve Guo</author>
+  <license>New BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>catkin</exec_depend>
+
+</package>
