@@ -1,7 +1,9 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 project(direct_visual_lidar_calibration)
 
-add_compile_options(-std=c++17)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -9,15 +11,15 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+# Include third-party dependencies
+include(${CMAKE_CURRENT_SOURCE_DIR}/dependencies/3rdparty/cmake/thirdparty.cmake)
+
 # ROS2
 find_package(ament_cmake_auto REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 ament_auto_find_build_dependencies()
 
 find_package(PCL REQUIRED)
-find_package(Ceres REQUIRED)
-find_package(GTSAM REQUIRED)
-find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem program_options)
 find_package(Iridescence REQUIRED)
 
@@ -62,18 +64,18 @@ target_include_directories(direct_visual_lidar_calibration PUBLIC
   thirdparty/nanoflann/include
   thirdparty/Sophus
   ${Boost_INCLUDE_DIRS}
-  ${CERES_INCLUDE_DIRS}
-  ${GTSAM_INCLUDE_DIRS}
-  ${PCL_INCLUDE_DIRS}
+  ${gtsam_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
+  ${ceres_INCLUDE_DIRS}
 )
 target_link_libraries(direct_visual_lidar_calibration
   fmt
   ${Boost_LIBRARIES}
   ${PCL_LIBRARIES}
-  ${CERES_LIBRARIES}
-  ${GTSAM_LIBRARIES}
-  ${OpenCV_LIBRARIES}
+  ${ceres_LIBRARIES}
+  ${gtsam_LIBRARIES}
+  ${opencv_LIBRARIES}
   Iridescence::Iridescence
 )
 
