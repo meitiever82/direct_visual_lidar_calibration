@@ -87,6 +87,44 @@ if(NOT EXISTS ${metis_LIBRARIES})
     message(FATAL_ERROR "METIS library not found at: ${metis_LIBRARIES}")
 endif()
 
+# GTSAM 4.3.0 - 固定版本（手动配置，不使用 find_package 避免找到系统版本）
+# 但需要设置 GTSAM_DIR 供 glim-config.cmake 的 find_dependency 使用
+set(GTSAM_DIR ${3rdPartyLibsPath}/gtsam-4.3/lib/cmake/GTSAM CACHE PATH "Path to GTSAM cmake config")
+set(GTSAM_UNSTABLE_DIR ${3rdPartyLibsPath}/gtsam-4.3/lib/cmake/GTSAM_UNSTABLE CACHE PATH "Path to GTSAM_UNSTABLE cmake config")
+set(GTSAM_INCLUDE_DIRS ${3rdPartyLibsPath}/gtsam-4.3/include)
+set(gtsam_INCLUDE_DIRS ${GTSAM_INCLUDE_DIRS})
+# 使用完整的 .so.4.3a0 文件名避免链接到系统版本
+set(gtsam_LIBRARIES
+    ${3rdPartyLibsPath}/gtsam-4.3/lib/libcephes-gtsam.so
+    ${3rdPartyLibsPath}/gtsam-4.3/lib/libgtsam.so.4.3a0
+    ${3rdPartyLibsPath}/gtsam-4.3/lib/libgtsam_unstable.so.4.3a0
+    ${3rdPartyLibsPath}/gtsam-4.3/lib/libmetis-gtsam.so
+)
+message(STATUS "GTSAM include directory path: ${gtsam_INCLUDE_DIRS}")
+message(STATUS "GTSAM libraries: ${gtsam_LIBRARIES}")
+
+# 验证GTSAM文件存在
+if(NOT EXISTS ${gtsam_INCLUDE_DIRS}/gtsam/nonlinear/NonlinearFactorGraph.h)
+    message(FATAL_ERROR "GTSAM headers not found at: ${gtsam_INCLUDE_DIRS}")
+endif()
+if(NOT EXISTS ${3rdPartyLibsPath}/gtsam-4.3/lib/libgtsam.so)
+    message(FATAL_ERROR "GTSAM library not found at: ${3rdPartyLibsPath}/gtsam-4.3/lib/libgtsam.so")
+endif()
+
+# GTSAM_POINTS 1.2.0 - 手动配置（不使用 find_package 避免找到系统版本）
+set(gtsam_points_INCLUDE_DIRS ${3rdPartyLibsPath}/gtsam-points-1.2.0/include)
+set(gtsam_points_LIBRARIES ${3rdPartyLibsPath}/gtsam-points-1.2.0/lib/libgtsam_points.so)
+message(STATUS "gtsam_points include directory path: ${gtsam_points_INCLUDE_DIRS}")
+message(STATUS "gtsam_points libraries: ${gtsam_points_LIBRARIES}")
+
+# 验证gtsam_points文件存在
+if(NOT EXISTS ${gtsam_points_INCLUDE_DIRS})
+    message(FATAL_ERROR "gtsam_points include directory not found: ${gtsam_points_INCLUDE_DIRS}")
+endif()
+if(NOT EXISTS ${gtsam_points_LIBRARIES})
+    message(FATAL_ERROR "gtsam_points library not found: ${gtsam_points_LIBRARIES}")
+endif()
+
 # Ceres 2.1.0 - 固定版本
 set(Ceres_DIR ${3rdPartyLibsPath}/ceres-solver-2.1/lib/cmake/Ceres)
 find_package(Ceres 2.1.0 EXACT REQUIRED)
@@ -157,7 +195,7 @@ if(g2o_FOUND)
         ${3rdPartyLibsPath}/g2o-23.08/lib/libg2o_solver_dense.so
         ${3rdPartyLibsPath}/g2o-23.08/lib/libg2o_solver_eigen.so
         ${3rdPartyLibsPath}/g2o-23.08/lib/libg2o_solver_cholmod.so
-        ${3rdPartyLibsPath}/g2o-23.08/lib/libg2o_solver_pcg.so                      
+        ${3rdPartyLibsPath}/g2o-23.08/lib/libg2o_solver_pcg.so
         ${3rdPartyLibsPath}/g2o-23.08/lib/libg2o_solver_slam2d_linear.so
         ${3rdPartyLibsPath}/g2o-23.08/lib/libg2o_solver_structure_only.so
         ${3rdPartyLibsPath}/g2o-23.08/lib/libg2o_types_data.so
@@ -263,8 +301,18 @@ else()
     message(FATAL_ERROR "cv_bridge not found, trying to find it in default paths")
 endif()
 
+# MPI - PCL的VTK依赖需要MPI
+find_package(MPI REQUIRED COMPONENTS C CXX)
+if(MPI_FOUND)
+    message(STATUS "MPI found, PCL/VTK will have MPI support")
+    message(STATUS "MPI_C_COMPILER: ${MPI_C_COMPILER}")
+    message(STATUS "MPI_CXX_COMPILER: ${MPI_CXX_COMPILER}")
+    message(STATUS "MPI_C_LIBRARIES: ${MPI_C_LIBRARIES}")
+    message(STATUS "MPI_CXX_LIBRARIES: ${MPI_CXX_LIBRARIES}")
+endif()
+
 # PCL - 默认使用系统版本（依赖太复杂，推荐使用apt安装）
-# Ubuntu 20.04: sudo apt install libpcl-dev (1.10.0)  
+# Ubuntu 20.04: sudo apt install libpcl-dev (1.10.0)
 # Ubuntu 22.04: sudo apt install libpcl-dev (1.12.1)
 # 如果需要特定版本，可以设置 -DUSE_CUSTOM_PCL=ON
 option(USE_CUSTOM_PCL "Use custom PCL installation instead of system PCL" OFF)
